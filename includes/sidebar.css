@@ -1,0 +1,101 @@
+/* --- SIDEBAR --- */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100vh;
+    background: #2c3e50;
+    color: #ecf0f1;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    padding-top: 60px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+}
+
+.sidebar.active {
+    left: 0;
+}
+
+.sidebar-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.sidebar-header i {
+    font-size: 40px;
+    color: #f1c40f;
+}
+
+.sidebar-header h5 {
+    margin-top: 10px;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar-menu li {
+    margin: 15px 0;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    color: #ecf0f1;
+    text-decoration: none;
+    padding: 10px 20px;
+    transition: 0.2s;
+}
+
+.sidebar-menu a:hover {
+    background: #34495e;
+    color: #f1c40f;
+}
+
+.sidebar-menu i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+/* --- BOUTON FLOTTANT --- */
+.sidebar-toggle-btn {
+    position: fixed;
+    bottom: 25px;        /* en bas de la page */
+    right: 25px;         /* à droite */
+    z-index: 1100;
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 50%;  /* forme ronde */
+    width: 55px;
+    height: 55px;
+    cursor: pointer;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+.sidebar-toggle-btn:hover {
+    background-color: #1a252f;
+    transform: scale(1.1);
+}
+
+/* Quand la sidebar est ouverte */
+.sidebar-toggle-btn.active {
+    right: 275px; /* décalé légèrement vers la gauche */
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
+    .sidebar-toggle-btn.active {
+        right: 215px;
+    }
+}
