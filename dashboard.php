@@ -4,126 +4,104 @@ require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/db.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
+    header("Location: " . ROOT_URL . "/index.php");
     exit;
 }
 
 require_once __DIR__ . '/includes/header.php';
+include __DIR__ . '/includes/sidebar.php';
 ?>
 
-<!-- Sidebar -->
-<?php include __DIR__ . '/includes/sidebar.php'; ?>
-
-<!-- Contenu principal -->
 <main class="container mt-5 pt-4">
-
     <div class="text-center mb-5">
-        <h2 class="fw-bold">Tableau de bord</h2>
-        <p class="lead text-muted">Bienvenue dans votre atelier de gestion. Voici un aperçu global de votre activité.</p>
+        <h2 class="fw-bold">Tableau de bord - Activité Atelier</h2>
+        <p class="lead text-muted">Suivi global et détaillé par période</p>
     </div>
 
-    <!-- ✅ Cartes de statistiques -->
-    <div class="row text-center mb-4">
-        <?php
-        $stats = [
-            'clients' => $pdo->query("SELECT COUNT(*) FROM clients")->fetchColumn(),
-            'vehicules' => $pdo->query("SELECT COUNT(*) FROM vehicules")->fetchColumn(),
-            'interventions' => $pdo->query("SELECT COUNT(*) FROM interventions")->fetchColumn(),
-            'pieces' => $pdo->query("SELECT COUNT(*) FROM pieces")->fetchColumn(),
-        ];
-        ?>
+    <?php
+    // Fonction utilitaire sécurisée
+    function getCount($pdo, $table, $condition = '') {
+        try {
+            $query = "SELECT COUNT(*) FROM $table";
+            if ($condition) $query .= " WHERE $condition";
+            return $pdo->query($query)->fetchColumn();
+        } catch (Exception $e) {
+            return 0;
+        }
+    }
 
-        <div class="col-md-3 mb-3">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <i class="bi bi-people fs-1 text-primary"></i>
-                    <h5 class="mt-2 fw-bold"><?= $stats['clients']; ?></h5>
-                    <p class="text-muted mb-0">Clients enregistrés</p>
-                </div>
-            </div>
-        </div>
+    // Périodes
+    $today = date('Y-m-d');
+    $weekStart = date('Y-m-d', strtotime('monday this week'));
+    $monthStart = date('Y-m-01');
 
-        <div class="col-md-3 mb-3">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <i class="bi bi-truck fs-1 text-success"></i>
-                    <h5 class="mt-2 fw-bold"><?= $stats['vehicules']; ?></h5>
-                    <p class="text-muted mb-0">Véhicules suivis</p>
-                </div>
-            </div>
-        </div>
+    // Table => Titre + Icône + Couleur
+    $entities = [
+        'clients' => ['title' => 'Clients', 'icon' => 'bi-people', 'color' => 'primary', 'date_col' => null],
+        'vehicules' => ['title' => 'Véhicules', 'icon' => 'bi-truck', 'color' => 'success', 'date_col' => null],
+        'interventions' => ['title' => 'Interventions', 'icon' => 'bi-wrench', 'color' => 'warning', 'date_col' => 'date_intervention'],
+        'pieces' => ['title' => 'Pièces', 'icon' => 'bi-box-seam', 'color' => 'danger', 'date_col' => null],
+    ];
 
-        <div class="col-md-3 mb-3">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <i class="bi bi-wrench fs-1 text-warning"></i>
-                    <h5 class="mt-2 fw-bold"><?= $stats['interventions']; ?></h5>
-                    <p class="text-muted mb-0">Interventions effectuées</p>
-                </div>
-            </div>
-        </div>
+    ?>
 
-        <div class="col-md-3 mb-3">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <i class="bi bi-box-seam fs-1 text-danger"></i>
-                    <h5 class="mt-2 fw-bold"><?= $stats['pieces']; ?></h5>
-                    <p class="text-muted mb-0">Pièces en stock</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ✅ Section messages / rappels -->
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-dark text-white">
-            <i class="bi bi-chat-left-text me-2"></i> Derniers messages & notifications
-        </div>
-        <div class="card-body">
+    <div class="row g-4">
+        <?php foreach ($entities as $table => $info): ?>
             <?php
-            $messages = [
-                "N'oubliez pas de vérifier les interventions en attente de validation.",
-                "Le stock de certaines pièces est bas, pensez à réapprovisionner.",
-                "Un nouveau client a été ajouté récemment.",
-                "Sauvegardez régulièrement la base de données pour éviter toute perte."
+            $dateCol = $info['date_col'] ? $info['date_col'] : 'id'; // fallback
+            $stats = [
+                'total' => getCount($pdo, $table),
+                'day' => getCount($pdo, $table, "$dateCol >= '$today'"),
+                'week' => getCount($pdo, $table, "$dateCol >= '$weekStart'"),
+                'month' => getCount($pdo, $table, "$dateCol >= '$monthStart'"),
             ];
             ?>
 
-            <ul class="list-group list-group-flush">
-                <?php foreach ($messages as $msg): ?>
-                    <li class="list-group-item">
-                        <i class="bi bi-info-circle text-primary me-2"></i> <?= htmlspecialchars($msg); ?>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        </div>
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center position-relative">
+                        <i class="bi <?= $info['icon']; ?> fs-1 text-<?= $info['color']; ?>"></i>
+                        <h5 class="mt-2 fw-bold"><?= $stats['total']; ?></h5>
+                        <p class="text-muted mb-0"><?= $info['title']; ?> totaux</p>
+
+                        <button class="btn btn-sm btn-outline-<?= $info['color']; ?> mt-3 toggle-details" data-target="#details-<?= $table; ?>">
+                            Voir les détails
+                        </button>
+
+                        <div class="details mt-3 d-none" id="details-<?= $table; ?>">
+                            <ul class="list-group list-group-flush small">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Entrées aujourd'hui</span>
+                                    <strong><?= $stats['day']; ?></strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Entrées cette semaine</span>
+                                    <strong><?= $stats['week']; ?></strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Entrées ce mois</span>
+                                    <strong><?= $stats['month']; ?></strong>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endforeach; ?>
     </div>
 
-    <!-- ✅ Section aperçu rapide -->
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-secondary text-white">
-            <i class="bi bi-graph-up me-2"></i> Activité récente
-        </div>
-        <div class="card-body">
-            <p class="text-muted">Aperçu des 5 dernières interventions :</p>
-            <?php
-            $recent = $pdo->query("SELECT description, date_intervention FROM interventions ORDER BY date_intervention DESC LIMIT 5");
-            if ($recent->rowCount() > 0): ?>
-                <ul class="list-group list-group-flush">
-                    <?php while ($row = $recent->fetch(PDO::FETCH_ASSOC)): ?>
-                        <li class="list-group-item">
-                            <i class="bi bi-wrench-adjustable text-success me-2"></i>
-                            <?= htmlspecialchars($row['description']); ?>
-                            <span class="float-end text-muted"><?= htmlspecialchars($row['date_intervention']); ?></span>
-                        </li>
-                    <?php endwhile; ?>
-                </ul>
-            <?php else: ?>
-                <p class="text-muted">Aucune intervention récente.</p>
-            <?php endif; ?>
-        </div>
-    </div>
+    <script>
+        document.querySelectorAll('.toggle-details').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = document.querySelector(btn.dataset.target);
+                target.classList.toggle('d-none');
+                target.classList.toggle('animate__animated');
+                target.classList.toggle('animate__fadeInDown');
+            });
+        });
+    </script>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 </main>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

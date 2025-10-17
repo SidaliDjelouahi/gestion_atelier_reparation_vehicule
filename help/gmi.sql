@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.2
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Hôte : 127.0.0.1:3306
--- Généré le : dim. 12 oct. 2025 à 05:32
--- Version du serveur : 11.8.3-MariaDB-log
--- Version de PHP : 7.2.34
+-- Hôte : 127.0.0.1
+-- Généré le : jeu. 16 oct. 2025 à 16:10
+-- Version du serveur : 10.4.28-MariaDB
+-- Version de PHP : 8.0.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de données : `u174726466_gmi`
+-- Base de données : `gmi`
 --
 
 -- --------------------------------------------------------
@@ -27,7 +27,6 @@ SET time_zone = "+00:00";
 -- Structure de la table `bons_intervention`
 --
 
-DROP TABLE IF EXISTS `bons_intervention`;
 CREATE TABLE `bons_intervention` (
   `id` int(11) NOT NULL,
   `num_bon` varchar(50) NOT NULL,
@@ -41,11 +40,10 @@ CREATE TABLE `bons_intervention` (
 -- Structure de la table `bons_intervention_details`
 --
 
-DROP TABLE IF EXISTS `bons_intervention_details`;
 CREATE TABLE `bons_intervention_details` (
   `id` int(11) NOT NULL,
   `id_bon_intervention` int(11) NOT NULL,
-  `id_piece` varchar(50) NOT NULL,
+  `id_piece` int(11) NOT NULL,
   `quantite` int(11) NOT NULL DEFAULT 1,
   `prix_vente` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -56,7 +54,6 @@ CREATE TABLE `bons_intervention_details` (
 -- Structure de la table `clients`
 --
 
-DROP TABLE IF EXISTS `clients`;
 CREATE TABLE `clients` (
   `id` int(11) NOT NULL,
   `nom` varchar(100) NOT NULL,
@@ -74,7 +71,6 @@ CREATE TABLE `clients` (
 -- Structure de la table `interventions`
 --
 
-DROP TABLE IF EXISTS `interventions`;
 CREATE TABLE `interventions` (
   `id` int(11) NOT NULL,
   `id_vehicule` int(11) NOT NULL,
@@ -89,10 +85,9 @@ CREATE TABLE `interventions` (
 -- Structure de la table `pieces`
 --
 
-DROP TABLE IF EXISTS `pieces`;
 CREATE TABLE `pieces` (
+  `id` int(11) NOT NULL,
   `ref` varchar(50) NOT NULL,
-  `stock` decimal(10,2) DEFAULT NULL,
   `designation` varchar(255) NOT NULL,
   `prix_achat_ht` decimal(10,2) DEFAULT NULL,
   `prix_vente_ht` decimal(10,2) NOT NULL,
@@ -105,7 +100,6 @@ CREATE TABLE `pieces` (
 -- Structure de la table `utilisateurs`
 --
 
-DROP TABLE IF EXISTS `utilisateurs`;
 CREATE TABLE `utilisateurs` (
   `id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
@@ -119,7 +113,6 @@ CREATE TABLE `utilisateurs` (
 -- Structure de la table `vehicules`
 --
 
-DROP TABLE IF EXISTS `vehicules`;
 CREATE TABLE `vehicules` (
   `id` int(11) NOT NULL,
   `id_client` int(11) NOT NULL,
@@ -156,17 +149,11 @@ ALTER TABLE `clients`
   ADD PRIMARY KEY (`id`);
 
 --
--- Index pour la table `interventions`
---
-ALTER TABLE `interventions`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `id_vehicule` (`id_vehicule`);
-
---
 -- Index pour la table `pieces`
 --
 ALTER TABLE `pieces`
-  ADD PRIMARY KEY (`ref`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ref` (`ref`);
 
 --
 -- Index pour la table `utilisateurs`
@@ -205,9 +192,9 @@ ALTER TABLE `clients`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT pour la table `interventions`
+-- AUTO_INCREMENT pour la table `pieces`
 --
-ALTER TABLE `interventions`
+ALTER TABLE `pieces`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -237,13 +224,7 @@ ALTER TABLE `bons_intervention`
 --
 ALTER TABLE `bons_intervention_details`
   ADD CONSTRAINT `bons_intervention_details_ibfk_1` FOREIGN KEY (`id_bon_intervention`) REFERENCES `bons_intervention` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `bons_intervention_details_ibfk_2` FOREIGN KEY (`id_piece`) REFERENCES `pieces` (`ref`);
-
---
--- Contraintes pour la table `interventions`
---
-ALTER TABLE `interventions`
-  ADD CONSTRAINT `interventions_ibfk_1` FOREIGN KEY (`id_vehicule`) REFERENCES `vehicules` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `bons_intervention_details_ibfk_2` FOREIGN KEY (`id_piece`) REFERENCES `pieces` (`id`);
 
 --
 -- Contraintes pour la table `vehicules`

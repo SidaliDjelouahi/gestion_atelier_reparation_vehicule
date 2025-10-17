@@ -18,11 +18,11 @@ require_once __DIR__ . "/config.php";
     </div>
     <ul class="sidebar-menu">
         <li><a href="<?php echo ROOT_URL; ?>/dashboard.php"><i class="bi bi-speedometer2"></i> Tableau de bord</a></li>
-        <li><a href="<?php echo ROOT_URL; ?>/clients/liste.php"><i class="bi bi-people"></i> Clients</a></li>
-        <li><a href="<?php echo ROOT_URL; ?>/vehicules/liste.php"><i class="bi bi-truck"></i> Véhicules</a></li>
-        <li><a href="<?php echo ROOT_URL; ?>/interventions/liste.php"><i class="bi bi-wrench"></i> Interventions</a></li>
-        <li><a href="<?php echo ROOT_URL; ?>/pieces/liste.php"><i class="bi bi-box-seam"></i> Pièces</a></li>
-        <li><a href="<?php echo ROOT_URL; ?>/bons/liste.php"><i class="bi bi-receipt"></i> Bons</a></li>
+        <li><a href="<?php echo ROOT_URL; ?>/clients/table.php"><i class="bi bi-people"></i> Clients</a></li>
+        <li><a href="<?php echo ROOT_URL; ?>/vehicules/table.php"><i class="bi bi-truck"></i> Véhicules</a></li>
+        <li><a href="<?php echo ROOT_URL; ?>/interventions/table.php"><i class="bi bi-wrench"></i> Interventions</a></li>
+        <li><a href="<?php echo ROOT_URL; ?>/pieces/table.php"><i class="bi bi-box-seam"></i> Pièces</a></li>
+        <li><a href="<?php echo ROOT_URL; ?>/bons/table.php"><i class="bi bi-receipt"></i> Bons</a></li>
         <li><a href="<?php echo ROOT_URL; ?>/logout.php" class="text-danger"><i class="bi bi-box-arrow-right"></i> Déconnexion</a></li>
     </ul>
 </div>
@@ -35,11 +35,11 @@ require_once __DIR__ . "/config.php";
 const sidebar = document.getElementById('sidebar');
 const toggleBtn = document.getElementById('sidebarToggle');
 
+// ✅ Ouvrir / fermer la sidebar
 toggleBtn.addEventListener('click', () => {
     sidebar.classList.toggle('active');
     toggleBtn.classList.toggle('active');
 
-    // ✅ Changement d’icône (menu ↔ fermer)
     const icon = toggleBtn.querySelector('i');
     if (sidebar.classList.contains('active')) {
         icon.classList.remove('bi-list');
@@ -48,5 +48,18 @@ toggleBtn.addEventListener('click', () => {
         icon.classList.remove('bi-x-lg');
         icon.classList.add('bi-list');
     }
+});
+
+// ✅ En mobile : fermer la sidebar après clic sur un lien
+document.querySelectorAll('.sidebar-menu a').forEach(link => {
+    link.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.remove('active');
+            toggleBtn.classList.remove('active');
+            const icon = toggleBtn.querySelector('i');
+            icon.classList.remove('bi-x-lg');
+            icon.classList.add('bi-list');
+        }
+    });
 });
 </script>

@@ -1,8 +1,11 @@
 <?php
-if (!defined('ROOT_PATH')) {
-    define('ROOT_PATH', __DIR__);
+// Détection automatique de l’environnement
+if (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
+    define('ROOT_URL', '/gestion_atelier_reparation_vehicule');
+} else {
+    define('ROOT_URL', 'https://gmi.unisoft-dz.com');
 }
 
-if (!defined('ROOT_URL')) {
-    define('ROOT_URL', '/gestion_atelier_reparation_vehicule'); // ou ton URL exacte
-}
+// Chemin racine du projet
+define('ROOT_PATH', __DIR__);
+?>
