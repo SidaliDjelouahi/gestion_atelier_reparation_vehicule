@@ -34,12 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$id_vehicule, $date_intervention, $km, $description]);
         $id_intervention = $pdo->lastInsertId();
 
-        // ➕ Créer le bon d’intervention
+        // ➕ Créer le bon d’intervention avec id_intervention
         $stmt = $pdo->prepare("
-            INSERT INTO bons_intervention (num_bon, id_client, date_bon)
-            VALUES (?, ?, ?)
+            INSERT INTO bons_intervention (num_bon, id_client, id_intervention, date_bon)
+            VALUES (?, ?, ?, ?)
         ");
-        $stmt->execute(['BON-' . $id_intervention, $id_client, date('Y-m-d')]);
+        $stmt->execute(['BON-' . $id_intervention, $id_client, $id_intervention, date('Y-m-d')]);
         $id_bon = $pdo->lastInsertId();
 
         // ➕ Détails des pièces et mise à jour du stock

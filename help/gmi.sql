@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1
--- Généré le : jeu. 16 oct. 2025 à 16:10
+-- Généré le : sam. 18 oct. 2025 à 17:50
 -- Version du serveur : 10.4.28-MariaDB
 -- Version de PHP : 8.0.28
 
@@ -24,6 +24,33 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `bons`
+--
+
+CREATE TABLE `bons` (
+  `id` int(11) NOT NULL,
+  `id_bon_intervention` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `versement` decimal(12,2) DEFAULT 0.00
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `bons_details`
+--
+
+CREATE TABLE `bons_details` (
+  `id` int(11) NOT NULL,
+  `id_bon` int(11) NOT NULL,
+  `id_piece` int(11) NOT NULL,
+  `prix_vente` decimal(12,2) NOT NULL,
+  `quantite` decimal(12,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `bons_intervention`
 --
 
@@ -31,6 +58,7 @@ CREATE TABLE `bons_intervention` (
   `id` int(11) NOT NULL,
   `num_bon` varchar(50) NOT NULL,
   `id_client` int(11) NOT NULL,
+  `id_intervention` int(11) DEFAULT NULL,
   `date_bon` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -128,11 +156,27 @@ CREATE TABLE `vehicules` (
 --
 
 --
+-- Index pour la table `bons`
+--
+ALTER TABLE `bons`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_bon_intervention` (`id_bon_intervention`);
+
+--
+-- Index pour la table `bons_details`
+--
+ALTER TABLE `bons_details`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_bon` (`id_bon`),
+  ADD KEY `id_piece` (`id_piece`);
+
+--
 -- Index pour la table `bons_intervention`
 --
 ALTER TABLE `bons_intervention`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `id_client` (`id_client`);
+  ADD KEY `id_client` (`id_client`),
+  ADD KEY `fk_bon_intervention` (`id_intervention`);
 
 --
 -- Index pour la table `bons_intervention_details`
@@ -146,6 +190,12 @@ ALTER TABLE `bons_intervention_details`
 -- Index pour la table `clients`
 --
 ALTER TABLE `clients`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Index pour la table `interventions`
+--
+ALTER TABLE `interventions`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -174,6 +224,18 @@ ALTER TABLE `vehicules`
 --
 
 --
+-- AUTO_INCREMENT pour la table `bons`
+--
+ALTER TABLE `bons`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pour la table `bons_details`
+--
+ALTER TABLE `bons_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT pour la table `bons_intervention`
 --
 ALTER TABLE `bons_intervention`
@@ -189,6 +251,12 @@ ALTER TABLE `bons_intervention_details`
 -- AUTO_INCREMENT pour la table `clients`
 --
 ALTER TABLE `clients`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT pour la table `interventions`
+--
+ALTER TABLE `interventions`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -214,10 +282,24 @@ ALTER TABLE `vehicules`
 --
 
 --
+-- Contraintes pour la table `bons`
+--
+ALTER TABLE `bons`
+  ADD CONSTRAINT `bons_ibfk_1` FOREIGN KEY (`id_bon_intervention`) REFERENCES `bons_intervention` (`id`) ON DELETE CASCADE;
+
+--
+-- Contraintes pour la table `bons_details`
+--
+ALTER TABLE `bons_details`
+  ADD CONSTRAINT `bons_details_ibfk_1` FOREIGN KEY (`id_bon`) REFERENCES `bons` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `bons_details_ibfk_2` FOREIGN KEY (`id_piece`) REFERENCES `pieces` (`id`) ON DELETE CASCADE;
+
+--
 -- Contraintes pour la table `bons_intervention`
 --
 ALTER TABLE `bons_intervention`
-  ADD CONSTRAINT `bons_intervention_ibfk_1` FOREIGN KEY (`id_client`) REFERENCES `clients` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `bons_intervention_ibfk_1` FOREIGN KEY (`id_client`) REFERENCES `clients` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_bon_intervention` FOREIGN KEY (`id_intervention`) REFERENCES `interventions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Contraintes pour la table `bons_intervention_details`
